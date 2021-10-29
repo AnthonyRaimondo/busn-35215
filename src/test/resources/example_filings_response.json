@@ -1,0 +1,338 @@
+{
+	"total": {
+		"value": 10000,
+		"relation": "gte"
+	},
+	"query": {
+		"from": 0,
+		"size": 5
+	},
+	"filings": [
+		{
+			"id": "26a6175e2b06afb50f7214e8cf1756e8",
+			"accessionNo": "0001183740-19-000176",
+			"cik": "1509171",
+			"ticker": "",
+			"companyName": "KONG DAVID",
+			"companyNameLong": "KONG DAVID (Reporting)",
+			"formType": "4",
+			"description": "Form 4 - Statement of changes in beneficial ownership of securities",
+			"filedAt": "2019-08-01T19:46:53-04:00",
+			"linkToTxt": "https://www.sec.gov/Archives/edgar/data/1509171/000118374019000176/0001183740-19-000176.txt",
+			"linkToHtml": "https://www.sec.gov/Archives/edgar/data/1509171/0001183740-19-000176-index.htm",
+			"linkToXbrl": "",
+			"linkToFilingDetails": "https://www.sec.gov/Archives/edgar/data/1334933/000118374019000176/xslF345X03/primary_doc.xml",
+			"entities": [
+				{
+					"companyName": "URANIUM ENERGY CORP (Issuer)",
+					"cik": "0001334933",
+					"irsNo": "980399476",
+					"stateOfIncorporation": "NV",
+					"fiscalYearEnd": "0731",
+					"sic": "1090 Miscellaneous Metal Ores"
+				},
+				{
+					"companyName": "KONG DAVID (Reporting)",
+					"cik": "0001509171",
+					"type": "4",
+					"act": "34",
+					"fileNo": "001-33706",
+					"filmNo": "19994133"
+				}
+			],
+			"documentFormatFiles": [
+				{
+					"sequence": "1",
+					"description": "PRIMARY DOCUMENT",
+					"documentUrl": "https://www.sec.gov/Archives/edgar/data/1334933/000118374019000176/xslF345X03/primary_doc.xml",
+					"type": "4",
+					"size": " "
+				},
+				{
+					"sequence": "1",
+					"description": "PRIMARY DOCUMENT",
+					"documentUrl": "https://www.sec.gov/Archives/edgar/data/1334933/000118374019000176/primary_doc.xml",
+					"type": "4",
+					"size": "6143"
+				},
+				{
+					"sequence": " ",
+					"description": "Complete submission text file",
+					"documentUrl": "https://www.sec.gov/Archives/edgar/data/1334933/000118374019000176/0001183740-19-000176.txt",
+					"type": " ",
+					"size": "7516"
+				}
+			],
+			"dataFiles": [],
+			"seriesAndClassesContractsInformation": []
+		},
+		{
+			"id": "27b78d7c2ba18afc7fbd2f504c3cac32",
+			"accessionNo": "0001209191-19-044127",
+			"cik": "1510295",
+			"ticker": "MPC",
+			"companyName": "Marathon Petroleum Corp",
+			"companyNameLong": "Marathon Petroleum Corp (Reporting)",
+			"formType": "4",
+			"description": "Form 4 - Statement of changes in beneficial ownership of securities",
+			"filedAt": "2019-08-01T19:46:53-04:00",
+			"linkToTxt": "https://www.sec.gov/Archives/edgar/data/1510295/000120919119044127/0001209191-19-044127.txt",
+			"linkToHtml": "https://www.sec.gov/Archives/edgar/data/1510295/0001209191-19-044127-index.htm",
+			"linkToXbrl": "",
+			"linkToFilingDetails": "https://www.sec.gov/Archives/edgar/data/911614/000120919119044127/xslF345X03/doc4.xml",
+			"entities": [
+				{
+					"companyName": "Tesoro Alaska Co LLC (Reporting)",
+					"cik": "0000911614",
+					"stateOfIncorporation": "DE",
+					"fiscalYearEnd": "1231",
+					"type": "4",
+					"act": "34",
+					"fileNo": "001-35714",
+					"filmNo": "19994135"
+				},
+				{
+					"companyName": "Marathon Petroleum Corp (Reporting)",
+					"cik": "0001510295",
+					"stateOfIncorporation": "DE",
+					"fiscalYearEnd": "1231",
+					"type": "4",
+					"act": "34",
+					"fileNo": "001-35714",
+					"filmNo": "19994134",
+					"sic": "2911 Petroleum Refining"
+				},
+				{
+					"companyName": "MPLX LP (Issuer)",
+					"cik": "0001552000",
+					"irsNo": "270005456",
+					"fiscalYearEnd": "1231",
+					"sic": "4610 Pipe Lines (No Natural Gas)"
+				}
+			],
+			"documentFormatFiles": [
+				{
+					"sequence": "1",
+					"description": "FORM 4 SUBMISSION",
+					"documentUrl": "https://www.sec.gov/Archives/edgar/data/911614/000120919119044127/xslF345X03/doc4.xml",
+					"type": "4",
+					"size": " "
+				},
+				{
+					"sequence": "1",
+					"description": "FORM 4 SUBMISSION",
+					"documentUrl": "https://www.sec.gov/Archives/edgar/data/911614/000120919119044127/doc4.xml",
+					"type": "4",
+					"size": "13266"
+				},
+				{
+					"sequence": " ",
+					"description": "Complete submission text file",
+					"documentUrl": "https://www.sec.gov/Archives/edgar/data/911614/000120919119044127/0001209191-19-044127.txt",
+					"type": " ",
+					"size": "15609"
+				}
+			],
+			"dataFiles": [],
+			"seriesAndClassesContractsInformation": []
+		},
+		{
+			"id": "3bd5a47c3d5dbbbbbf5e969f2c5cd446",
+			"accessionNo": "0001209191-19-044127",
+			"cik": "1552000",
+			"ticker": "MPLX",
+			"companyName": "MPLX LP",
+			"companyNameLong": "MPLX LP (Issuer)",
+			"formType": "4",
+			"description": "Form 4 - Statement of changes in beneficial ownership of securities",
+			"filedAt": "2019-08-01T19:46:53-04:00",
+			"linkToTxt": "https://www.sec.gov/Archives/edgar/data/1552000/000120919119044127/0001209191-19-044127.txt",
+			"linkToHtml": "https://www.sec.gov/Archives/edgar/data/1552000/0001209191-19-044127-index.htm",
+			"linkToXbrl": "",
+			"linkToFilingDetails": "https://www.sec.gov/Archives/edgar/data/911614/000120919119044127/xslF345X03/doc4.xml",
+			"entities": [
+				{
+					"companyName": "Tesoro Alaska Co LLC (Reporting)",
+					"cik": "0000911614",
+					"stateOfIncorporation": "DE",
+					"fiscalYearEnd": "1231",
+					"type": "4",
+					"act": "34",
+					"fileNo": "001-35714",
+					"filmNo": "19994135"
+				},
+				{
+					"companyName": "Marathon Petroleum Corp (Reporting)",
+					"cik": "0001510295",
+					"stateOfIncorporation": "DE",
+					"fiscalYearEnd": "1231",
+					"type": "4",
+					"act": "34",
+					"fileNo": "001-35714",
+					"filmNo": "19994134",
+					"sic": "2911 Petroleum Refining"
+				},
+				{
+					"companyName": "MPLX LP (Issuer)",
+					"cik": "0001552000",
+					"irsNo": "270005456",
+					"fiscalYearEnd": "1231",
+					"sic": "4610 Pipe Lines (No Natural Gas)"
+				}
+			],
+			"documentFormatFiles": [
+				{
+					"sequence": "1",
+					"description": "FORM 4 SUBMISSION",
+					"documentUrl": "https://www.sec.gov/Archives/edgar/data/911614/000120919119044127/xslF345X03/doc4.xml",
+					"type": "4",
+					"size": " "
+				},
+				{
+					"sequence": "1",
+					"description": "FORM 4 SUBMISSION",
+					"documentUrl": "https://www.sec.gov/Archives/edgar/data/911614/000120919119044127/doc4.xml",
+					"type": "4",
+					"size": "13266"
+				},
+				{
+					"sequence": " ",
+					"description": "Complete submission text file",
+					"documentUrl": "https://www.sec.gov/Archives/edgar/data/911614/000120919119044127/0001209191-19-044127.txt",
+					"type": " ",
+					"size": "15609"
+				}
+			],
+			"dataFiles": [],
+			"seriesAndClassesContractsInformation": []
+		},
+		{
+			"id": "cb4afc62de004700f67e5875aa3352b5",
+			"accessionNo": "0001209191-19-044127",
+			"cik": "911614",
+			"ticker": "",
+			"companyName": "Tesoro Alaska Co LLC",
+			"companyNameLong": "Tesoro Alaska Co LLC (Reporting)",
+			"formType": "4",
+			"description": "Form 4 - Statement of changes in beneficial ownership of securities",
+			"filedAt": "2019-08-01T19:46:53-04:00",
+			"linkToTxt": "https://www.sec.gov/Archives/edgar/data/911614/000120919119044127/0001209191-19-044127.txt",
+			"linkToHtml": "https://www.sec.gov/Archives/edgar/data/911614/0001209191-19-044127-index.htm",
+			"linkToXbrl": "",
+			"linkToFilingDetails": "https://www.sec.gov/Archives/edgar/data/911614/000120919119044127/xslF345X03/doc4.xml",
+			"entities": [
+				{
+					"companyName": "Tesoro Alaska Co LLC (Reporting)",
+					"cik": "0000911614",
+					"stateOfIncorporation": "DE",
+					"fiscalYearEnd": "1231",
+					"type": "4",
+					"act": "34",
+					"fileNo": "001-35714",
+					"filmNo": "19994135"
+				},
+				{
+					"companyName": "Marathon Petroleum Corp (Reporting)",
+					"cik": "0001510295",
+					"stateOfIncorporation": "DE",
+					"fiscalYearEnd": "1231",
+					"type": "4",
+					"act": "34",
+					"fileNo": "001-35714",
+					"filmNo": "19994134",
+					"sic": "2911 Petroleum Refining"
+				},
+				{
+					"companyName": "MPLX LP (Issuer)",
+					"cik": "0001552000",
+					"irsNo": "270005456",
+					"fiscalYearEnd": "1231",
+					"sic": "4610 Pipe Lines (No Natural Gas)"
+				}
+			],
+			"documentFormatFiles": [
+				{
+					"sequence": "1",
+					"description": "FORM 4 SUBMISSION",
+					"documentUrl": "https://www.sec.gov/Archives/edgar/data/911614/000120919119044127/xslF345X03/doc4.xml",
+					"type": "4",
+					"size": " "
+				},
+				{
+					"sequence": "1",
+					"description": "FORM 4 SUBMISSION",
+					"documentUrl": "https://www.sec.gov/Archives/edgar/data/911614/000120919119044127/doc4.xml",
+					"type": "4",
+					"size": "13266"
+				},
+				{
+					"sequence": " ",
+					"description": "Complete submission text file",
+					"documentUrl": "https://www.sec.gov/Archives/edgar/data/911614/000120919119044127/0001209191-19-044127.txt",
+					"type": " ",
+					"size": "15609"
+				}
+			],
+			"dataFiles": [],
+			"seriesAndClassesContractsInformation": []
+		},
+		{
+			"id": "591bf6f02a95318407a0824dea375f9c",
+			"accessionNo": "0001183740-19-000176",
+			"cik": "1334933",
+			"ticker": "UEC",
+			"companyName": "URANIUM ENERGY CORP",
+			"companyNameLong": "URANIUM ENERGY CORP (Issuer)",
+			"formType": "4",
+			"description": "Form 4 - Statement of changes in beneficial ownership of securities",
+			"filedAt": "2019-08-01T19:46:53-04:00",
+			"linkToTxt": "https://www.sec.gov/Archives/edgar/data/1334933/000118374019000176/0001183740-19-000176.txt",
+			"linkToHtml": "https://www.sec.gov/Archives/edgar/data/1334933/0001183740-19-000176-index.htm",
+			"linkToXbrl": "",
+			"linkToFilingDetails": "https://www.sec.gov/Archives/edgar/data/1334933/000118374019000176/xslF345X03/primary_doc.xml",
+			"entities": [
+				{
+					"companyName": "URANIUM ENERGY CORP (Issuer)",
+					"cik": "0001334933",
+					"irsNo": "980399476",
+					"stateOfIncorporation": "NV",
+					"fiscalYearEnd": "0731",
+					"sic": "1090 Miscellaneous Metal Ores"
+				},
+				{
+					"companyName": "KONG DAVID (Reporting)",
+					"cik": "0001509171",
+					"type": "4",
+					"act": "34",
+					"fileNo": "001-33706",
+					"filmNo": "19994133"
+				}
+			],
+			"documentFormatFiles": [
+				{
+					"sequence": "1",
+					"description": "PRIMARY DOCUMENT",
+					"documentUrl": "https://www.sec.gov/Archives/edgar/data/1334933/000118374019000176/xslF345X03/primary_doc.xml",
+					"type": "4",
+					"size": " "
+				},
+				{
+					"sequence": "1",
+					"description": "PRIMARY DOCUMENT",
+					"documentUrl": "https://www.sec.gov/Archives/edgar/data/1334933/000118374019000176/primary_doc.xml",
+					"type": "4",
+					"size": "6143"
+				},
+				{
+					"sequence": " ",
+					"description": "Complete submission text file",
+					"documentUrl": "https://www.sec.gov/Archives/edgar/data/1334933/000118374019000176/0001183740-19-000176.txt",
+					"type": " ",
+					"size": "7516"
+				}
+			],
+			"dataFiles": [],
+			"seriesAndClassesContractsInformation": []
+		}
+	]
+}
