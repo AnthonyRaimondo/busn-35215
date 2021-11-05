@@ -2,4 +2,4 @@ from pydantic import BaseModel
 
 
 class DataFile(BaseModel):
-    pass
+    pass  # Empty array for all form 4 filings
