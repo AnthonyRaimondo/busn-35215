@@ -1,34 +1,35 @@
-from typing import List
+import re
+from typing import Tuple, List
 
 from bs4 import BeautifulSoup
-from bs4.element import Tag, ResultSet
-import requests
+from bs4.element import Tag
 
-from config.app_config import Config
-from constant import consumption_constants as const
+from common.constant import consume as const
+from common.formatting import format_date
+from digest.digest_transactions import digest_transactions
 from domain.form_4_filing.company import Company
+from domain.form_4_filing.derivative_transaction import DerivativeTransaction
+from domain.form_4_filing.filing_transactions import FilingTransactions
+from domain.form_4_filing.non_derivative_transaction import NonDerivativeTransaction
 from domain.form_4_filing.shareholder import Shareholder
 
 
-def consume_and_save_xml_form_4_filing(url: str) -> None:
-    auth_headers = {
-        "Authorization": Config.SEC_API_KEY,
-        "User-Agent": Config.SEC_USER_AGENT,
-    }
-    response = requests.get(url, headers=auth_headers)
-    decoded_content = response.content.decode(const.ENCODING)
-    lxml = BeautifulSoup(decoded_content, "lxml")
-    for table in lxml.findAll("table"):
+def consume_and_save_xml_form_4_filing(lxml: BeautifulSoup, filing_date_string: str) -> None:
+    filing_date = format_date(filing_date_string)
+    tables = lxml.findAll("table")
+    for table in tables:
         if const.SHAREHOLDER_TABLE in table.text:
             company, shareholder = collect_transaction_meta_data(table)
         elif const.NON_DERIVATIVE_TABLE in table.text:
-            collect_non_derivative_info(table)
-        elif const.DERIVATIVE_TABLE in table.text:
-            collect_derivative_info(table)
+            non_derivative_transactions = collect_non_derivative_info(table)
+        # todo: uncomment the two lines below and pass derivative_transactions if interested in derivative transactions
+        # elif const.DERIVATIVE_TABLE in table.text:
+        #     derivative_transactions = collect_derivative_info(table)
             break  # this table will always be the last one we're interested in
+    digest_transactions(FilingTransactions(company, shareholder, non_derivative_transactions), filing_date)
 
 
-def collect_transaction_meta_data(table: Tag) -> tuple:
+def collect_transaction_meta_data(table: Tag) -> Tuple[Company, Shareholder]:
     def extract_cik(row_tag_string: str) -> str:
         return row_tag_string.split(const.CIK)[1].split("\"")[0]  # keep as str to preserve preceding zeros
 
@@ -87,9 +88,62 @@ def collect_transaction_meta_data(table: Tag) -> tuple:
     return company, shareholder
 
 
-def collect_non_derivative_info(table: Tag):
-    pass
+def collect_non_derivative_info(table: Tag) -> List[NonDerivativeTransaction] or None:
+    non_derivative_transactions = []
+    tbody = table.find("tbody")
+    if tbody is not None:
+        for row in tbody.findAll("tr"):
+            cells = row.findAll("td")
+            if len(cells[5].text) > 0:  # number of shares will be null for indirect ownership disclosure
+                number_of_shares = _format_share_count(cells[5].text)
+                if number_of_shares != 0.0:  # some transactions are not unitized; we are not interested in these
+                    transaction_code = _format_transaction_code(cells[3].text)
+                    share_price = _format_dollar_amount(cells[7].text)
+                    shares_held_following_transaction = _format_share_count(cells[8].text)
+                    non_derivative_transactions.append(NonDerivativeTransaction(
+                        transaction_code, number_of_shares, shares_held_following_transaction, share_price)
+                    )
+        return non_derivative_transactions
+    else:
+        return None
 
 
-def collect_derivative_info(table: Tag):
-    pass
+def collect_derivative_info(table: Tag) -> List[DerivativeTransaction] or None:
+    derivative_transactions = []
+    tbody = table.find("tbody")
+    if tbody is not None:
+        for row in tbody.findAll("tr"):
+            cells = row.findAll("td")
+            transaction_code = _format_transaction_code(cells[4].text)
+            if len(transaction_code) == 0:
+                continue
+            number_of_shares = _format_share_count(cells[6].text if len(cells[6].text) > 0 else cells[7].text)
+            shares_held_following_transaction = _format_share_count(cells[13].text)
+            share_price = _format_dollar_amount(cells[12].text)
+            exercise_price = _format_dollar_amount(cells[1].text)
+            derivative_transactions.append(DerivativeTransaction(
+                transaction_code, number_of_shares, shares_held_following_transaction, share_price, exercise_price)
+            )
+        return derivative_transactions
+    else:
+        return None
+
+
+def _format_dollar_amount(raw_dollar_string: str) -> float or None:
+    if re.match("\((\d+)\)", raw_dollar_string):
+        return None
+    if "(" in raw_dollar_string:
+        raw_dollar_string = raw_dollar_string.split("(")[0]
+    clean_dollar_string = raw_dollar_string.replace("$", "").replace("\n", "").replace(",", "")
+    if len(clean_dollar_string) > 0:
+        return float(clean_dollar_string)
+    else:
+        return None
+
+
+def _format_share_count(shares_string: str) -> float:
+    return float(shares_string.split("(")[0].replace(",", "").replace("\n", ""))
+
+
+def _format_transaction_code(transaction_code_string: str) -> str:
+    return transaction_code_string.split("(")[0].replace("\n", "")

@@ -16,7 +16,7 @@ SEC_PAYLOAD = {
     "sort": [
         {
             "filedAt": {
-                "order": "desc"
+                "order": "asc"
             }
         }
     ]
