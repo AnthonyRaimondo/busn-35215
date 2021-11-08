@@ -2,6 +2,7 @@ API = "https://api.sec-api.io"
 ENCODING = 'utf-8'
 FORM_4_FILTER = "formType:\"4\" " \
                 "AND formType:(NOT \"N-4\") " \
+                "AND formType:(NOT \"F-4\") " \
                 "AND formType:(NOT \"S-4\") " \
                 "AND formType:(NOT \"4/A\") " \
                 "AND filedAt:[{} TO {}]"
@@ -32,3 +33,7 @@ DIRECTOR = "Director"
 TEN_PERCENT_OWNER = "10% Owner"
 OFFICER = "Officer (give title below)"
 OTHER_RELATIONSHIP = "Other (specify below)"
+BAD_RESPONSES = [
+    "Authorization header is invalid",
+"File Unavailable</title>"
+]

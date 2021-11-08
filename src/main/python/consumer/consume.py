@@ -1,10 +1,10 @@
+import asyncio
 import json
-import os
-from concurrent.futures import ThreadPoolExecutor
+import time
 from urllib.request import Request, urlopen
 from datetime import date, timedelta, datetime
 
-import requests
+import aiohttp as aiohttp
 from bs4 import BeautifulSoup
 
 from common.config.app_config import Config
@@ -22,8 +22,8 @@ def create_request(bytes_length: int) -> Request:
     return request
 
 
-def construct_payload(begin: date, end: date, filings_filter: str, forms_to_request: int, start_from: int) -> dict:
-    SEC_PAYLOAD.get("query").get("query_string")["query"] = filings_filter.format(begin, end)
+def construct_payload(begin: date, filings_filter: str, forms_to_request: int, start_from: int) -> dict:
+    SEC_PAYLOAD.get("query").get("query_string")["query"] = filings_filter.format(begin, begin)
     SEC_PAYLOAD["size"] = forms_to_request
     SEC_PAYLOAD["from"] = start_from
     return SEC_PAYLOAD
@@ -38,21 +38,29 @@ def call_sec_api(request_body: dict) -> FilingsMetadata:
     return FilingsMetadata(**json.loads(response_body.decode(ENCODING)))
 
 
-def _format_date(date_string: str) -> date:
-    return datetime.strptime(date_string.split('-04:00')[0], "%Y-%m-%dT%H:%M:%S").date()
+async def download_file(session, url: str) -> BeautifulSoup:
+    async with session.get(url) as response:
+        content = await response.text()
+        return BeautifulSoup(content, "lxml")
 
 
-def download_file(url: str) -> BeautifulSoup:
-    auth_headers = {
-        "Authorization": Config.SEC_API_KEY,
-        "User-Agent": Config.SEC_USER_AGENT,
-    }
-    response = requests.get(url, headers=auth_headers)
-    decoded_content = response.content.decode(ENCODING)
-    return BeautifulSoup(decoded_content, "lxml")
+async def download_all_files(urls: list):
+    auth_headers = {"Authorization": Config.SEC_API_KEY, "User-Agent": Config.SEC_USER_AGENT}
+    async with aiohttp.ClientSession(headers=auth_headers) as session:
+        tasks, requests_made = [], 0
+        for url in urls:
+            requests_made += 1
+            task = asyncio.ensure_future(download_file(session, url))
+            tasks.append(task)
+            if requests_made == 9:
+                await asyncio.sleep(1.2)
+                requests_made = 0
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        return results
 
 
-def download_form_4_filings(begin: date, end: date, start_from: int = 0, existing_filing_urls: list = None) -> None:
+async def download_form_4_filings(begin: date, end: date, start_from: int = 0, existing_filing_urls: list = None) -> None:
+    last_sleep = 0
     if begin > end:  # Base Case: date to start query from is after date to stop at
         return
 
@@ -65,39 +73,42 @@ def download_form_4_filings(begin: date, end: date, start_from: int = 0, existin
 
     # create payload to retrieve filing metadata
     size = 200  # 200 seems to be the max the SEC's api will return
-    payload = construct_payload(begin, end, FORM_4_FILTER, size, start_from)
+    payload = construct_payload(begin, FORM_4_FILTER, size, start_from)
 
     # make request to SEC api with custom payload
     sec_response = call_sec_api(payload)
 
     # iterate over filings returned for the date range specified
-    for filing in sec_response.filings:
-        # there should be some overlap of previous query end date and new query begin date, to ensure no filings are missed
-        if filing.linkToFilingDetails not in existing_filing_urls:
-            if len(filing.ticker) > 0:
-                existing_filing_urls.append(filing.linkToFilingDetails)
-                filing_urls_from_this_iteration.append(filing.linkToFilingDetails)
-    url_content_mapping = {}
-    with ThreadPoolExecutor() as executor:
-        for url in filing_urls_from_this_iteration:
-            future = executor.submit(download_file, url)
-            url_content_mapping[url] = future.result()
-    for url, content in url_content_mapping.items():
-        consumer = consume_and_save_xml_form_4_filing if ".xml" in url else consume_and_save_txt_form_4_filing  # some older filings are only made available in .txt format
-        consumer(content, filing.filedAt)
-    latest_filing_date = _format_date(filing.filedAt)
+    if len(sec_response.filings) > 0:
+        for filing in sec_response.filings:
+            # there should be some overlap of previous query end date and new query begin date, to ensure no filings are missed
+            if filing.linkToFilingDetails not in existing_filing_urls:
+                if len(filing.ticker) > 0:
+                    existing_filing_urls.append(filing.linkToFilingDetails)
+                    filing_urls_from_this_iteration.append(filing.linkToFilingDetails)
+        responses = await download_all_files(filing_urls_from_this_iteration)
+        for response in responses:
+            consumer = consume_and_save_xml_form_4_filing  # if ".xml" in url else consume_and_save_txt_form_4_filing  # some older filings are only made available in .txt format
+            try:
+                consumer(response, filing.filedAt)
+            except Exception as e:
+                print(e)
+                seconds_to_sleep = 60 * 10
+                print(f"sleeping for {seconds_to_sleep} seconds due to exception. Time since last sleep: {time.time()-last_sleep}")
+                last_sleep = time.time()
+                time.sleep(seconds_to_sleep)
 
     # recursive call
     if len(sec_response.filings) < size:  # all filings for this date have been processed
-        print(f"{latest_filing_date} complete")
-        print(latest_filing_date + timedelta(days=1))
-        download_form_4_filings(latest_filing_date + timedelta(days=1), end, 0, filing_urls_from_this_iteration)
+        print(f"{begin} complete")
+        new_begin_date = begin + timedelta(days=1)
+        await download_form_4_filings(new_begin_date, end, 0, filing_urls_from_this_iteration)
     else:  # more filings left to process for this date
-        download_form_4_filings(latest_filing_date, end, start_from + size, filing_urls_from_this_iteration)
+        await download_form_4_filings(begin, end, start_from + size, filing_urls_from_this_iteration)
 
 
 if __name__ == "__main__":
     # begin_date = date(1999, 6, 1)  # inclusive - per SEC api
-    begin_date = date(2018, 6, 4)  # inclusive - per SEC api
+    begin_date = date(2019, 3, 11)  # inclusive - per SEC api
     end_date = date(2021, 6, 1)  # exclusive - per SEC api
-    download_form_4_filings(begin_date, end_date)
+    asyncio.get_event_loop().run_until_complete(download_form_4_filings(begin_date, end_date))
