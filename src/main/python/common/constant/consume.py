@@ -35,5 +35,6 @@ OFFICER = "Officer (give title below)"
 OTHER_RELATIONSHIP = "Other (specify below)"
 BAD_RESPONSES = [
     "Authorization header is invalid",
-"File Unavailable</title>"
+    "File Unavailable</title>",
+    "File Not Found Error Alert (404)"
 ]

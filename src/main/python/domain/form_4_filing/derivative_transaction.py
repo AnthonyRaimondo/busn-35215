@@ -1,4 +1,4 @@
-from domain.transaction import Transaction
+from domain.form_4_filing.transaction import Transaction
 
 
 class DerivativeTransaction(Transaction):

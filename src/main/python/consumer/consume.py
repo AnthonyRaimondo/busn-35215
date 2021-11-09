@@ -83,7 +83,7 @@ async def download_form_4_filings(begin: date, end: date, start_from: int = 0, e
         for filing in sec_response.filings:
             # there should be some overlap of previous query end date and new query begin date, to ensure no filings are missed
             if filing.linkToFilingDetails not in existing_filing_urls:
-                if len(filing.ticker) > 0:
+                if filing.ticker is not None and len(filing.ticker) > 0:
                     existing_filing_urls.append(filing.linkToFilingDetails)
                     filing_urls_from_this_iteration.append(filing.linkToFilingDetails)
         responses = await download_all_files(filing_urls_from_this_iteration)
@@ -109,6 +109,6 @@ async def download_form_4_filings(begin: date, end: date, start_from: int = 0, e
 
 if __name__ == "__main__":
     # begin_date = date(1999, 6, 1)  # inclusive - per SEC api
-    begin_date = date(2019, 3, 11)  # inclusive - per SEC api
+    begin_date = date(2020, 5, 13)  # inclusive - per SEC api
     end_date = date(2021, 6, 1)  # exclusive - per SEC api
     asyncio.get_event_loop().run_until_complete(download_form_4_filings(begin_date, end_date))
