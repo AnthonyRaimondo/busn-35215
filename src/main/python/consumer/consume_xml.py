@@ -16,6 +16,10 @@ from domain.form_4_filing.shareholder import Shareholder
 
 def consume_and_save_xml_form_4_filing(lxml: BeautifulSoup, filing_date_string: str) -> None:
     filing_date = format_date(filing_date_string)
+    try:
+        _ = lxml.text
+    except Exception:
+        return None  # TimeoutError response
     tables = lxml.findAll("table")
     for table in tables:
         if const.SHAREHOLDER_TABLE in table.text:
@@ -26,7 +30,13 @@ def consume_and_save_xml_form_4_filing(lxml: BeautifulSoup, filing_date_string: 
         # elif const.DERIVATIVE_TABLE in table.text:
         #     derivative_transactions = collect_derivative_info(table)
             break  # this table will always be the last one we're interested in
-    digest_transactions(FilingTransactions(company, shareholder, non_derivative_transactions), filing_date)
+    try:
+        digest_transactions(FilingTransactions(company, shareholder, non_derivative_transactions), filing_date)
+    except Exception as e:
+        if any(bad_response in lxml.text for bad_response in const.BAD_RESPONSES):
+            return None  # sometimes the xml file is unavailable
+        print(lxml)  # otherwise, might have gotten slapped on the wrist by sec api. Trigger timeout by throwing exception
+        raise e
 
 
 def collect_transaction_meta_data(table: Tag) -> Tuple[Company, Shareholder]:
@@ -63,7 +73,7 @@ def collect_transaction_meta_data(table: Tag) -> Tuple[Company, Shareholder]:
 
     def collect_shareholder_info(name_and_address: Tag, relationship_to_issuer: Tag) -> Shareholder:
         cik_number = extract_cik(str(name_and_address))
-        name = extract_shareholder_name(name_and_address)
+        name = _strip_formatting(extract_shareholder_name(name_and_address))
         shareholder_relationship = extract_shareholder_relationship(relationship_to_issuer.table)
         director = const.DIRECTOR in shareholder_relationship
         ten_percent_owner = const.TEN_PERCENT_OWNER in shareholder_relationship
@@ -73,7 +83,7 @@ def collect_transaction_meta_data(table: Tag) -> Tuple[Company, Shareholder]:
             title = extract_shareholder_title(relationship_to_issuer.table)
         else:
             title = const.DIRECTOR if director else const.TEN_PERCENT_OWNER
-        return Shareholder(cik_number, name, title, director, ten_percent_owner, officer, other)
+        return Shareholder(cik_number, name, _strip_formatting(title), director, ten_percent_owner, officer, other)
 
     for item in table.contents:
         if const.SHAREHOLDER_TABLE in item.text:
@@ -141,9 +151,16 @@ def _format_dollar_amount(raw_dollar_string: str) -> float or None:
         return None
 
 
-def _format_share_count(shares_string: str) -> float:
-    return float(shares_string.split("(")[0].replace(",", "").replace("\n", ""))
+def _format_share_count(shares_string: str) -> float or None:
+    try:
+        return float(shares_string.split("(")[0].replace(",", "").replace("\n", ""))
+    except ValueError:  # sometimes this is given in dollars, not interested in these funds
+        return None
 
 
 def _format_transaction_code(transaction_code_string: str) -> str:
     return transaction_code_string.split("(")[0].replace("\n", "")
+
+
+def _strip_formatting(input_string: str) -> str:
+    return re.sub("\s+", " ", input_string.replace("\n", "").replace("\t", "")).strip()
