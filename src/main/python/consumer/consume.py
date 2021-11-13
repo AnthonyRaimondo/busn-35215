@@ -2,7 +2,7 @@ import asyncio
 import json
 import time
 from urllib.request import Request, urlopen
-from datetime import date, timedelta, datetime
+from datetime import date, timedelta
 
 import aiohttp as aiohttp
 from bs4 import BeautifulSoup
@@ -53,7 +53,7 @@ async def download_all_files(urls: list):
             task = asyncio.ensure_future(download_file(session, url))
             tasks.append(task)
             if requests_made == 9:
-                await asyncio.sleep(1.2)
+                await asyncio.sleep(1.1)
                 requests_made = 0
         results = await asyncio.gather(*tasks, return_exceptions=True)
         return results
@@ -90,7 +90,7 @@ async def download_form_4_filings(begin: date, end: date, start_from: int = 0, e
         for response in responses:
             consumer = consume_and_save_xml_form_4_filing  # if ".xml" in url else consume_and_save_txt_form_4_filing  # some older filings are only made available in .txt format
             try:
-                consumer(response, filing.filedAt)
+                consumer(response, begin)
             except Exception as e:
                 print(e)
                 seconds_to_sleep = 60 * 10
@@ -109,6 +109,7 @@ async def download_form_4_filings(begin: date, end: date, start_from: int = 0, e
 
 if __name__ == "__main__":
     # begin_date = date(1999, 6, 1)  # inclusive - per SEC api
-    begin_date = date(2021, 3, 24)  # inclusive - per SEC api
-    end_date = date(2021, 6, 1)  # exclusive - per SEC api
+    begin_date = date(2013, 2, 27)  # inclusive - per SEC api
+    end_date = date(2015, 12, 31)  # exclusive - per SEC api
+    # end_date = date(2021, 6, 1)  # exclusive - per SEC api
     asyncio.get_event_loop().run_until_complete(download_form_4_filings(begin_date, end_date))

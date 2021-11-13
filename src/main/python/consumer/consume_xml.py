@@ -1,11 +1,11 @@
 import re
+from datetime import date
 from typing import Tuple, List
 
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 
 from common.constant import consume as const
-from common.formatting import format_date
 from digest.digest_transactions import digest_transactions
 from domain.form_4_filing.company import Company
 from domain.form_4_filing.derivative_transaction import DerivativeTransaction
@@ -14,8 +14,7 @@ from domain.form_4_filing.non_derivative_transaction import NonDerivativeTransac
 from domain.form_4_filing.shareholder import Shareholder
 
 
-def consume_and_save_xml_form_4_filing(lxml: BeautifulSoup, filing_date_string: str) -> None:
-    filing_date = format_date(filing_date_string)
+def consume_and_save_xml_form_4_filing(lxml: BeautifulSoup, filing_date: date) -> None:
     try:
         _ = lxml.text
     except Exception:
@@ -67,9 +66,8 @@ def collect_transaction_meta_data(table: Tag) -> Tuple[Company, Shareholder]:
     def collect_company_info(company_and_ticker: Tag) -> Company:
         cik_number = extract_cik(str(company_and_ticker))
         cleaned_text = company_and_ticker.text.split(const.ISSUER_NAME_AND_TICKER)[1].split("\n")
-        company_name = cleaned_text[1].strip()
-        ticker = cleaned_text[2].split("[")[1].split("]")[0].strip()
-        return Company(cik_number, ticker, company_name)
+        ticker = _strip_formatting(cleaned_text[2].split("[")[1].split("]")[0].strip())
+        return Company(cik_number, ticker)
 
     def collect_shareholder_info(name_and_address: Tag, relationship_to_issuer: Tag) -> Shareholder:
         cik_number = extract_cik(str(name_and_address))
@@ -159,8 +157,8 @@ def _format_share_count(shares_string: str) -> float or None:
 
 
 def _format_transaction_code(transaction_code_string: str) -> str:
-    return transaction_code_string.split("(")[0].replace("\n", "")
+    return transaction_code_string.split("(")[0].replace("\n", "").replace(",", "")
 
 
 def _strip_formatting(input_string: str) -> str:
-    return re.sub("\s+", " ", input_string.replace("\n", "").replace("\t", "")).strip()
+    return re.sub("\s+", " ", input_string.replace("\n", "").replace("\t", "")).replace(",", "").strip()
