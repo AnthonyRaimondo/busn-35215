@@ -19,22 +19,23 @@ def digest_transactions(filing_transactions: FilingTransactions, filing_date: da
 
 
 def format_and_save_transactions(company: Company, shareholder: Shareholder, transactions: List[Transaction], filing_date: datetime) -> None:
-    transactions_dir = os.path.join(BASE_FILE_PATH, "main", "resources", f"{transactions[0].__class__.__name__}s")
-    transactions_by_date = {}
-    company_headers = [f"company_{header}" for header in list(company.__dict__.keys())]
-    shareholder_headers = [f"shareholder_{header}" for header in list(shareholder.__dict__.keys())]
-    company_values = [str(value) for value in company.__dict__.values()]
-    shareholder_values = [str(value) for value in shareholder.__dict__.values()]
-    transaction_headers = list(transactions[0].__dict__.keys())
-    for transaction in transactions:
-        if not os.path.exists(f"{transactions_dir}\\{filing_date.year}\\{filing_date.month}\\{filing_date.day}.csv"):
-            prepare_file_structure(transactions_dir, filing_date,
-                                   TRANSACTION_ID + "," + ",".join(company_headers + shareholder_headers + transaction_headers))
-        if filing_date not in transactions_by_date:
-            transactions_by_date[filing_date] = []
-            transaction_values = [str(value) for value in transaction.__dict__.values()]
-        transactions_by_date[filing_date].append(','.join([str(uuid.uuid4())] + company_values + shareholder_values + transaction_values))
-    save_transactions(transactions_by_date, transactions_dir)
+    if len(transactions) > 0:
+        transactions_dir = os.path.join(BASE_FILE_PATH, "main", "resources", f"{transactions[0].__class__.__name__}s")
+        transactions_by_date = {}
+        company_headers = [f"company_{header}" for header in list(company.__dict__.keys())]
+        shareholder_headers = [f"shareholder_{header}" for header in list(shareholder.__dict__.keys())]
+        company_values = [str(value) for value in company.__dict__.values()]
+        shareholder_values = [str(value) for value in shareholder.__dict__.values()]
+        transaction_headers = list(transactions[0].__dict__.keys())
+        for transaction in transactions:
+            if not os.path.exists(f"{transactions_dir}\\{filing_date.year}\\{filing_date.month}\\{filing_date.day}.csv"):
+                prepare_file_structure(transactions_dir, filing_date,
+                                       TRANSACTION_ID + "," + ",".join(company_headers + shareholder_headers + transaction_headers))
+            if filing_date not in transactions_by_date:
+                transactions_by_date[filing_date] = []
+                transaction_values = [str(value) for value in transaction.__dict__.values()]
+            transactions_by_date[filing_date].append(','.join([str(uuid.uuid4())] + company_values + shareholder_values + transaction_values))
+        save_transactions(transactions_by_date, transactions_dir)
 
 
 def save_transactions(transactions_by_date: Dict[datetime, List[str]], transactions_dir: str) -> None:

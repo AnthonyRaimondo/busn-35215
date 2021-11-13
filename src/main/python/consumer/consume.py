@@ -2,7 +2,7 @@ import asyncio
 import json
 import time
 from urllib.request import Request, urlopen
-from datetime import date, timedelta, datetime
+from datetime import date, timedelta
 
 import aiohttp as aiohttp
 from bs4 import BeautifulSoup
@@ -38,10 +38,13 @@ def call_sec_api(request_body: dict) -> FilingsMetadata:
     return FilingsMetadata(**json.loads(response_body.decode(ENCODING)))
 
 
-async def download_file(session, url: str) -> BeautifulSoup:
+async def download_file(session, url: str) -> BeautifulSoup or str:
     async with session.get(url) as response:
         content = await response.text()
-        return BeautifulSoup(content, "lxml")
+        if ".xml" in url:
+            return BeautifulSoup(content, "lxml")
+        else:
+            return content
 
 
 async def download_all_files(urls: list):
@@ -84,11 +87,15 @@ async def download_form_4_filings(begin: date, end: date, start_from: int = 0, e
             # there should be some overlap of previous query end date and new query begin date, to ensure no filings are missed
             if filing.linkToFilingDetails not in existing_filing_urls:
                 if filing.ticker is not None and len(filing.ticker) > 0:
-                    existing_filing_urls.append(filing.linkToFilingDetails)
-                    filing_urls_from_this_iteration.append(filing.linkToFilingDetails)
+                    if ".xml" in filing.linkToFilingDetails:
+                        existing_filing_urls.append(filing.linkToFilingDetails)
+                        filing_urls_from_this_iteration.append(filing.linkToFilingDetails)
+                    else:
+                        existing_filing_urls.append(filing.linkToTxt)
+                        filing_urls_from_this_iteration.append(filing.linkToTxt)
         responses = await download_all_files(filing_urls_from_this_iteration)
         for response in responses:
-            consumer = consume_and_save_xml_form_4_filing  # if ".xml" in url else consume_and_save_txt_form_4_filing  # some older filings are only made available in .txt format
+            consumer = consume_and_save_xml_form_4_filing if isinstance(response, BeautifulSoup) else consume_and_save_txt_form_4_filing
             try:
                 consumer(response, filing.filedAt)
             except Exception as e:
