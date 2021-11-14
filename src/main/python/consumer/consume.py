@@ -56,7 +56,7 @@ async def download_all_files(urls: list):
             task = asyncio.ensure_future(download_file(session, url))
             tasks.append(task)
             if requests_made == 9:
-                await asyncio.sleep(1.2)
+                await asyncio.sleep(1.1)
                 requests_made = 0
         results = await asyncio.gather(*tasks, return_exceptions=True)
         return results
@@ -64,7 +64,7 @@ async def download_all_files(urls: list):
 
 async def download_form_4_filings(begin: date, end: date, start_from: int = 0, existing_filing_urls: list = None) -> None:
     last_sleep = 0
-    if begin > end:  # Base Case: date to start query from is after date to stop at
+    if begin < end:  # Base Case: date to start query from is before date to stop at (moving backwards in time)
         return
 
     # Recursive Case: There are filings yet to be downloaded, continue consuming them
@@ -97,7 +97,7 @@ async def download_form_4_filings(begin: date, end: date, start_from: int = 0, e
         for response in responses:
             consumer = consume_and_save_xml_form_4_filing if isinstance(response, BeautifulSoup) else consume_and_save_txt_form_4_filing
             try:
-                consumer(response, filing.filedAt)
+                consumer(response, begin)
             except Exception as e:
                 print(e)
                 seconds_to_sleep = 60 * 10
@@ -108,14 +108,15 @@ async def download_form_4_filings(begin: date, end: date, start_from: int = 0, e
     # recursive call
     if len(sec_response.filings) < size:  # all filings for this date have been processed
         print(f"{begin} complete")
-        new_begin_date = begin + timedelta(days=1)
+        new_begin_date = begin - timedelta(days=1)
         await download_form_4_filings(new_begin_date, end, 0, filing_urls_from_this_iteration)
     else:  # more filings left to process for this date
         await download_form_4_filings(begin, end, start_from + size, filing_urls_from_this_iteration)
 
 
 if __name__ == "__main__":
-    # begin_date = date(1999, 6, 1)  # inclusive - per SEC api
-    begin_date = date(2021, 3, 24)  # inclusive - per SEC api
-    end_date = date(2021, 6, 1)  # exclusive - per SEC api
+    # begin_date = date(2021, 6, 1)  # inclusive - per SEC api
+    begin_date = date(2012, 12, 31)  # inclusive - per SEC api
+    end_date = date(1999, 6, 1)  # exclusive - per SEC api
+    # end_date = date(1999, 6, 1)  # exclusive - per SEC api
     asyncio.get_event_loop().run_until_complete(download_form_4_filings(begin_date, end_date))

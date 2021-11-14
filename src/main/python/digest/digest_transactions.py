@@ -1,6 +1,6 @@
 import os
 import uuid
-from datetime import datetime
+from datetime import date
 from typing import List, Dict
 
 from common.constant.digest import BASE_FILE_PATH, TRANSACTION_ID
@@ -11,14 +11,14 @@ from domain.form_4_filing.shareholder import Shareholder
 from domain.form_4_filing.transaction import Transaction
 
 
-def digest_transactions(filing_transactions: FilingTransactions, filing_date: datetime) -> None:
+def digest_transactions(filing_transactions: FilingTransactions, filing_date: date) -> None:
     if filing_transactions.non_derivative_transactions is not None and len(filing_transactions.non_derivative_transactions) > 0:
         format_and_save_transactions(filing_transactions.company, filing_transactions.shareholder, filing_transactions.non_derivative_transactions, filing_date)
     if filing_transactions.derivative_transactions is not None and len(filing_transactions.derivative_transactions) > 0:
         format_and_save_transactions(filing_transactions.company, filing_transactions.shareholder, filing_transactions.derivative_transactions, filing_date)
 
 
-def format_and_save_transactions(company: Company, shareholder: Shareholder, transactions: List[Transaction], filing_date: datetime) -> None:
+def format_and_save_transactions(company: Company, shareholder: Shareholder, transactions: List[Transaction], filing_date: date) -> None:
     if len(transactions) > 0:
         transactions_dir = os.path.join(BASE_FILE_PATH, "main", "resources", f"{transactions[0].__class__.__name__}s")
         transactions_by_date = {}
@@ -38,9 +38,9 @@ def format_and_save_transactions(company: Company, shareholder: Shareholder, tra
         save_transactions(transactions_by_date, transactions_dir)
 
 
-def save_transactions(transactions_by_date: Dict[datetime, List[str]], transactions_dir: str) -> None:
-    for date, transactions in transactions_by_date.items():
-        filename = f"{transactions_dir}\\{date.year}\\{date.month}\\{date.day}.csv"
+def save_transactions(transactions_by_date: Dict[date, List[str]], transactions_dir: str) -> None:
+    for date_obj, transactions in transactions_by_date.items():
+        filename = f"{transactions_dir}\\{date_obj.year}\\{date_obj.month}\\{date_obj.day}.csv"
         with open(filename, "r") as existing_csv_file:
             contents = existing_csv_file.read()
         with open(filename, "w") as csv_file:

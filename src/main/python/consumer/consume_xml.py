@@ -1,3 +1,5 @@
+import re
+from datetime import date
 from typing import Tuple, List
 
 from bs4 import BeautifulSoup
@@ -13,8 +15,7 @@ from domain.form_4_filing.non_derivative_transaction import NonDerivativeTransac
 from domain.form_4_filing.shareholder import Shareholder
 
 
-def consume_and_save_xml_form_4_filing(lxml: BeautifulSoup, filing_date_string: str) -> None:
-    filing_date = format_date(filing_date_string)
+def consume_and_save_xml_form_4_filing(lxml: BeautifulSoup, filing_date: date) -> None:
     try:
         _ = lxml.text
     except Exception:
@@ -66,7 +67,7 @@ def collect_transaction_meta_data(table: Tag) -> Tuple[Company, Shareholder]:
     def collect_company_info(company_and_ticker: Tag) -> Company:
         cik_number = extract_cik(str(company_and_ticker))
         cleaned_text = company_and_ticker.text.split(const.ISSUER_NAME_AND_TICKER)[1].split("\n")
-        ticker = cleaned_text[2].split("[")[1].split("]")[0].strip()
+        ticker = strip_formatting(cleaned_text[2].split("[")[1].split("]")[0].strip())
         return Company(cik_number, ticker)
 
     def collect_shareholder_info(name_and_address: Tag, relationship_to_issuer: Tag) -> Shareholder:

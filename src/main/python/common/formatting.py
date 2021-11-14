@@ -30,4 +30,4 @@ def format_transaction_code(transaction_code_string: str) -> str:
 
 
 def strip_formatting(input_string: str) -> str:
-    return re.sub(r"\s+", " ", input_string.replace("\n", "").replace("\t", "")).strip()
+    return re.sub(r"\s+", " ", input_string.replace(",", "").replace("\n", "").replace("\t", "")).strip()

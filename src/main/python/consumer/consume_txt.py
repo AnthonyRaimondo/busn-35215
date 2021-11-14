@@ -11,6 +11,7 @@ from domain.form_4_filing.shareholder import Shareholder
 
 
 def consume_and_save_txt_form_4_filing(txt_file_contents: str, filing_date_string: str) -> None:
+    print("\t\tDOWNLOADING TXT FILE")
     company = extract_company_info(txt_file_contents)
     shareholder = extract_shareholder_info(txt_file_contents)
     non_derivative_transactions = extract_non_derivative_transactions(txt_file_contents)
