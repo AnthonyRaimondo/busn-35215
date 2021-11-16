@@ -38,9 +38,14 @@ def call_sec_api(request_body: dict) -> FilingsMetadata:
     return FilingsMetadata(**json.loads(response_body.decode(ENCODING)))
 
 
-async def download_file(session, url: str) -> BeautifulSoup or str:
+async def download_file(session: aiohttp.ClientSession, url: str, retry: bool = True) -> BeautifulSoup or str:
     async with session.get(url) as response:
         content = await response.text()
+        if isinstance(content, (aiohttp.ClientConnectionError, aiohttp.ClientTimeout)):
+            if retry:  # retry once to see if connection resets, raise exception if it does not
+                await asyncio.sleep(1)
+                await download_file(session, url, False)
+            raise Exception(f"Error occurred while retrieving filing. {content}")
         if ".xml" in url:
             return BeautifulSoup(content, "lxml")
         else:
@@ -56,7 +61,7 @@ async def download_all_files(urls: list):
             task = asyncio.ensure_future(download_file(session, url))
             tasks.append(task)
             if requests_made == 9:
-                await asyncio.sleep(1.1)
+                await asyncio.sleep(1)
                 requests_made = 0
         results = await asyncio.gather(*tasks, return_exceptions=True)
         return results
@@ -85,7 +90,7 @@ async def download_form_4_filings(begin: date, end: date, start_from: int = 0, e
     if len(sec_response.filings) > 0:
         for filing in sec_response.filings:
             # there should be some overlap of previous query end date and new query begin date, to ensure no filings are missed
-            if filing.linkToFilingDetails not in existing_filing_urls:
+            if filing.linkToFilingDetails is not None and filing.linkToFilingDetails not in existing_filing_urls:
                 if filing.ticker is not None and len(filing.ticker) > 0:
                     if ".xml" in filing.linkToFilingDetails:
                         existing_filing_urls.append(filing.linkToFilingDetails)
@@ -95,15 +100,18 @@ async def download_form_4_filings(begin: date, end: date, start_from: int = 0, e
                         filing_urls_from_this_iteration.append(filing.linkToTxt)
         responses = await download_all_files(filing_urls_from_this_iteration)
         for response in responses:
-            consumer = consume_and_save_xml_form_4_filing if isinstance(response, BeautifulSoup) else consume_and_save_txt_form_4_filing
-            try:
-                consumer(response, begin)
-            except Exception as e:
-                print(e)
-                seconds_to_sleep = 60 * 10
-                print(f"sleeping for {seconds_to_sleep} seconds due to exception. Time since last sleep: {time.time()-last_sleep}")
-                last_sleep = time.time()
-                time.sleep(seconds_to_sleep)
+            if isinstance(response, (BeautifulSoup, str)):
+                consumer = consume_and_save_xml_form_4_filing if isinstance(response, BeautifulSoup) else consume_and_save_txt_form_4_filing
+                try:
+                    consumer(response, begin)
+                except Exception as e:
+                    print(e)
+                    seconds_to_sleep = 60 * 10
+                    print(f"sleeping for {seconds_to_sleep} seconds due to exception. Time since last sleep: {time.time()-last_sleep}")
+                    last_sleep = time.time()
+                    time.sleep(seconds_to_sleep)
+            else:
+                raise Exception("")
 
     # recursive call
     if len(sec_response.filings) < size:  # all filings for this date have been processed
@@ -115,8 +123,7 @@ async def download_form_4_filings(begin: date, end: date, start_from: int = 0, e
 
 
 if __name__ == "__main__":
-    # begin_date = date(2021, 6, 1)  # inclusive - per SEC api
-    begin_date = date(2012, 12, 31)  # inclusive - per SEC api
-    end_date = date(1999, 6, 1)  # exclusive - per SEC api
-    # end_date = date(1999, 6, 1)  # exclusive - per SEC api
+    # begin_date = date(2021, 6, 1)  # exclusive - per SEC api
+    begin_date = date(2008, 4, 10)  # exclusive - per SEC api
+    end_date = date(1999, 6, 1)  # inclusive - per SEC api
     asyncio.get_event_loop().run_until_complete(download_form_4_filings(begin_date, end_date))
