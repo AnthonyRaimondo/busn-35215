@@ -41,21 +41,21 @@ def call_sec_api(request_body: dict) -> FilingsMetadata:
 async def download_file(session: aiohttp.ClientSession, url: str, retry: bool = True) -> BeautifulSoup or str:
     async with session.get(url) as response:
         content = await response.text()
-        if isinstance(content, (aiohttp.ClientConnectionError, aiohttp.ClientTimeout)):
-            if retry:  # retry once to see if connection resets, raise exception if it does not
-                await asyncio.sleep(1)
-                await download_file(session, url, False)
-            raise Exception(f"Error occurred while retrieving filing. {content}")
-        if ".xml" in url:
-            return BeautifulSoup(content, "lxml")
-        else:
-            return content
+    if isinstance(content, (aiohttp.ClientConnectionError, aiohttp.ClientTimeout)):
+        if retry:  # retry once to see if connection resets, raise exception if it does not
+            await asyncio.sleep(1)
+            return await download_file(session, url, False)
+        raise Exception(f"Error occurred while retrieving filing. {content}")
+    if ".txt" in url:
+        return content
+    else:  # .xml & .htm
+        return BeautifulSoup(content, "lxml")
 
 
 async def download_all_files(urls: list):
     auth_headers = {"Authorization": Config.SEC_API_KEY, "User-Agent": Config.SEC_USER_AGENT}
+    tasks, requests_made = [], 0
     async with aiohttp.ClientSession(headers=auth_headers) as session:
-        tasks, requests_made = [], 0
         for url in urls:
             requests_made += 1
             task = asyncio.ensure_future(download_file(session, url))
@@ -92,12 +92,12 @@ async def download_form_4_filings(begin: date, end: date, start_from: int = 0, e
             # there should be some overlap of previous query end date and new query begin date, to ensure no filings are missed
             if filing.linkToFilingDetails is not None and filing.linkToFilingDetails not in existing_filing_urls:
                 if filing.ticker is not None and len(filing.ticker) > 0:
-                    if ".xml" in filing.linkToFilingDetails:
-                        existing_filing_urls.append(filing.linkToFilingDetails)
-                        filing_urls_from_this_iteration.append(filing.linkToFilingDetails)
+                    if any(extension == filing.linkToFilingDetails[-4:] for extension in [".xml", ".htm", ".txt"]):
+                        link_to_filing_details = filing.linkToFilingDetails
                     else:
-                        existing_filing_urls.append(filing.linkToTxt)
-                        filing_urls_from_this_iteration.append(filing.linkToTxt)
+                        link_to_filing_details = filing.linkToTxt
+                    existing_filing_urls.append(link_to_filing_details)
+                    filing_urls_from_this_iteration.append(link_to_filing_details)
         responses = await download_all_files(filing_urls_from_this_iteration)
         for response in responses:
             if isinstance(response, (BeautifulSoup, str)):
@@ -111,7 +111,7 @@ async def download_form_4_filings(begin: date, end: date, start_from: int = 0, e
                     last_sleep = time.time()
                     time.sleep(seconds_to_sleep)
             else:
-                raise Exception("")
+                raise Exception(f"Error: Response was of type {type(response)} rather than BeautifulSoup or str")
 
     # recursive call
     if len(sec_response.filings) < size:  # all filings for this date have been processed
@@ -124,6 +124,6 @@ async def download_form_4_filings(begin: date, end: date, start_from: int = 0, e
 
 if __name__ == "__main__":
     # begin_date = date(2021, 6, 1)  # exclusive - per SEC api
-    begin_date = date(2008, 4, 10)  # exclusive - per SEC api
+    begin_date = date(2004, 6, 8)  # exclusive - per SEC api
     end_date = date(1999, 6, 1)  # inclusive - per SEC api
-    asyncio.get_event_loop().run_until_complete(download_form_4_filings(begin_date, end_date))
+    asyncio.run(download_form_4_filings(begin_date, end_date))
