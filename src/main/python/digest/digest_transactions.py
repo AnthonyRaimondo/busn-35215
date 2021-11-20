@@ -3,7 +3,7 @@ import uuid
 from datetime import date
 from typing import List, Dict
 
-from common.constant.digest import BASE_FILE_PATH, TRANSACTION_ID
+from common.constant.digest import TRANSACTION_ID, RESOURCES_PATH
 from digest.file_operations import prepare_file_structure
 from domain.form_4_filing.company import Company
 from domain.form_4_filing.filing_transactions import FilingTransactions
@@ -19,7 +19,7 @@ def digest_transactions(filing_transactions: FilingTransactions, filing_date: da
 
 
 def format_and_save_transactions(company: Company, shareholder: Shareholder, transactions: List[Transaction], filing_date: date) -> None:
-    transactions_dir = os.path.join(BASE_FILE_PATH, "main", "resources", f"{transactions[0].__class__.__name__}s")
+    transactions_dir = RESOURCES_PATH.joinpath(f"{transactions[0].__class__.__name__}s")
     transactions_by_date = {}
     company_headers = [f"company_{header}" for header in list(company.__dict__.keys())]
     shareholder_headers = [f"shareholder_{header}" for header in list(shareholder.__dict__.keys())]
@@ -32,7 +32,7 @@ def format_and_save_transactions(company: Company, shareholder: Shareholder, tra
                                    TRANSACTION_ID + "," + ",".join(company_headers + shareholder_headers + transaction_headers))
         if filing_date not in transactions_by_date:
             transactions_by_date[filing_date] = []
-            transaction_values = [str(value) for value in transaction.__dict__.values()]
+        transaction_values = [str(value) for value in transaction.__dict__.values()]
         transactions_by_date[filing_date].append(','.join([str(uuid.uuid4())] + company_values + shareholder_values + transaction_values))
     save_transactions(transactions_by_date, transactions_dir)
 

@@ -8,7 +8,7 @@ import aiohttp as aiohttp
 from bs4 import BeautifulSoup
 
 from common.config.app_config import Config
-from common.constant.consume import FORM_4_FILTER, API, ENCODING, SEC_PAYLOAD
+from common.constant.consume import FORM_4_FILTER, API, ENCODING, SEC_PAYLOAD, BEGIN_DATE, END_DATE
 from consumer.consume_txt import consume_and_save_txt_form_4_filing
 from consumer.consume_xml import consume_and_save_xml_form_4_filing
 from domain.filings_metadata.filings_metadata import FilingsMetadata
@@ -55,7 +55,7 @@ async def download_all_files(urls: list):
             if requests_made == 9:
                 await asyncio.sleep(1.1)
                 requests_made = 0
-        results = await asyncio.gather(*tasks, return_exceptions=True)
+        results = await asyncio.gather(*tasks, return_exceptions=False)
         return results
 
 
@@ -108,8 +108,4 @@ async def download_form_4_filings(begin: date, end: date, start_from: int = 0, e
 
 
 if __name__ == "__main__":
-    # begin_date = date(1999, 6, 1)  # inclusive - per SEC api
-    begin_date = date(2013, 2, 27)  # inclusive - per SEC api
-    end_date = date(2015, 12, 31)  # exclusive - per SEC api
-    # end_date = date(2021, 6, 1)  # exclusive - per SEC api
-    asyncio.get_event_loop().run_until_complete(download_form_4_filings(begin_date, end_date))
+    asyncio.run(download_form_4_filings(BEGIN_DATE, END_DATE))
