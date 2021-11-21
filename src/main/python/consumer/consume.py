@@ -1,10 +1,10 @@
 import asyncio
 import json
-import time
 from urllib.request import Request, urlopen
 from datetime import date, timedelta
 
 import aiohttp as aiohttp
+from aiohttp import DummyCookieJar
 from bs4 import BeautifulSoup
 
 from common.config.app_config import Config
@@ -53,9 +53,12 @@ async def download_file(session: aiohttp.ClientSession, url: str, retry: bool = 
 
 
 async def download_all_files(urls: list):
-    auth_headers = {"Authorization": Config.SEC_API_KEY, "User-Agent": Config.SEC_USER_AGENT}
+    auth_headers = {"Authorization": Config.SEC_API_KEY,
+                    "User-Agent": Config.SEC_USER_AGENT,
+                    "content-encoding": "gzip",
+                    "accept": "text/html,application/xhtml+xml,application/xml"}
     tasks, requests_made = [], 0
-    async with aiohttp.ClientSession(headers=auth_headers) as session:
+    async with aiohttp.ClientSession(headers=auth_headers, cookie_jar=DummyCookieJar()) as session:
         for url in urls:
             requests_made += 1
             task = asyncio.ensure_future(download_file(session, url))
@@ -63,12 +66,11 @@ async def download_all_files(urls: list):
             if requests_made == 9:
                 await asyncio.sleep(1)
                 requests_made = 0
-        results = await asyncio.gather(*tasks, return_exceptions=True)
+        results = await asyncio.gather(*tasks, return_exceptions=False)
         return results
 
 
 async def download_form_4_filings(begin: date, end: date, start_from: int = 0, existing_filing_urls: list = None) -> None:
-    last_sleep = 0
     if begin < end:  # Base Case: date to start query from is before date to stop at (moving backwards in time)
         return
 
@@ -92,7 +94,7 @@ async def download_form_4_filings(begin: date, end: date, start_from: int = 0, e
             # there should be some overlap of previous query end date and new query begin date, to ensure no filings are missed
             if filing.linkToFilingDetails is not None and filing.linkToFilingDetails not in existing_filing_urls:
                 if filing.ticker is not None and len(filing.ticker) > 0:
-                    if any(extension == filing.linkToFilingDetails[-4:] for extension in [".xml", ".htm", ".txt"]):
+                    if any(extension == filing.linkToFilingDetails[-4:] for extension in [".xml"]):#, ".htm"]):
                         link_to_filing_details = filing.linkToFilingDetails
                     else:
                         link_to_filing_details = filing.linkToTxt
@@ -102,14 +104,7 @@ async def download_form_4_filings(begin: date, end: date, start_from: int = 0, e
         for response in responses:
             if isinstance(response, (BeautifulSoup, str)):
                 consumer = consume_and_save_xml_form_4_filing if isinstance(response, BeautifulSoup) else consume_and_save_txt_form_4_filing
-                try:
-                    consumer(response, begin)
-                except Exception as e:
-                    print(e)
-                    seconds_to_sleep = 60 * 10
-                    print(f"sleeping for {seconds_to_sleep} seconds due to exception. Time since last sleep: {time.time()-last_sleep}")
-                    last_sleep = time.time()
-                    time.sleep(seconds_to_sleep)
+                consumer(response, begin)
             else:
                 raise Exception(f"Error: Response was of type {type(response)} rather than BeautifulSoup or str")
 
@@ -124,6 +119,6 @@ async def download_form_4_filings(begin: date, end: date, start_from: int = 0, e
 
 if __name__ == "__main__":
     # begin_date = date(2021, 6, 1)  # exclusive - per SEC api
-    begin_date = date(2004, 6, 8)  # exclusive - per SEC api
+    begin_date = date(2003, 5, 2)  # exclusive - per SEC api
     end_date = date(1999, 6, 1)  # inclusive - per SEC api
     asyncio.run(download_form_4_filings(begin_date, end_date))

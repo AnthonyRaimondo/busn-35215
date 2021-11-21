@@ -33,7 +33,7 @@ def format_and_save_transactions(company: Company, shareholder: Shareholder, tra
                                        TRANSACTION_ID + "," + ",".join(company_headers + shareholder_headers + transaction_headers))
             if filing_date not in transactions_by_date:
                 transactions_by_date[filing_date] = []
-                transaction_values = [str(value) for value in transaction.__dict__.values()]
+            transaction_values = [str(value) for value in transaction.__dict__.values()]
             transactions_by_date[filing_date].append(','.join([str(uuid.uuid4())] + company_values + shareholder_values + transaction_values))
         save_transactions(transactions_by_date, transactions_dir)
 

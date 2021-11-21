@@ -1,4 +1,3 @@
-import re
 from datetime import date
 from typing import Tuple, List
 
@@ -6,7 +5,7 @@ from bs4 import BeautifulSoup
 from bs4.element import Tag
 
 from common.constant import consume as const
-from common.formatting import format_date, format_dollar_amount, format_share_count, format_transaction_code, strip_formatting
+from common.formatting import format_dollar_amount, format_share_count, format_transaction_code, strip_formatting
 from digest.digest_transactions import digest_transactions
 from domain.form_4_filing.company import Company
 from domain.form_4_filing.derivative_transaction import DerivativeTransaction
@@ -16,10 +15,10 @@ from domain.form_4_filing.shareholder import Shareholder
 
 
 def consume_and_save_xml_form_4_filing(lxml: BeautifulSoup, filing_date: date) -> None:
-    try:
-        _ = lxml.text
-    except Exception:
-        return None  # TimeoutError response
+    # try:
+    #     _ = lxml.text
+    # except Exception:
+    #     return None  # TimeoutError response
     tables = lxml.findAll("table")
     for table in tables:
         if const.SHAREHOLDER_TABLE in table.text:

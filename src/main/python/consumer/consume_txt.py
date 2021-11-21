@@ -1,7 +1,9 @@
+import re
+from datetime import date
 from typing import List
 
 import common.constant.consume as const
-from common.formatting import format_date, format_transaction_code, format_share_count, format_dollar_amount, strip_formatting
+from common.formatting import format_transaction_code, format_share_count, format_dollar_amount, strip_formatting
 from digest.digest_transactions import digest_transactions
 from domain.form_4_filing.company import Company
 from domain.form_4_filing.derivative_transaction import DerivativeTransaction
@@ -10,14 +12,14 @@ from domain.form_4_filing.non_derivative_transaction import NonDerivativeTransac
 from domain.form_4_filing.shareholder import Shareholder
 
 
-def consume_and_save_txt_form_4_filing(txt_file_contents: str, filing_date_string: str) -> None:
+def consume_and_save_txt_form_4_filing(txt_file_contents: str, filing_date_string: date) -> None:
     print("\t\tDOWNLOADING TXT FILE")
     company = extract_company_info(txt_file_contents)
     shareholder = extract_shareholder_info(txt_file_contents)
     non_derivative_transactions = extract_non_derivative_transactions(txt_file_contents)
     # todo: uncomment the two lines below and pass derivative_transactions if interested in derivative transactions
     # derivative_transactions = extract_derivative_transactions(txt_file_contents)
-    digest_transactions(FilingTransactions(company, shareholder, non_derivative_transactions), format_date(filing_date_string))
+    digest_transactions(FilingTransactions(company, shareholder, non_derivative_transactions), filing_date_string)
 
 
 def extract_company_info(file_contents: str) -> Company:
@@ -110,12 +112,13 @@ def extract_non_derivative_transaction_details(transaction_row: str) -> NonDeriv
         return NonDerivativeTransaction(transaction_code, number_of_shares, shares_held_following_transaction, share_price)
     else:  # space delimited
         length = len(transaction_row.split("<C>")[0])  # find length between start of row and first <C> tag
-        cells = transaction_row.split("\n")[-2][length:].split()
+        clean_transaction_row = re.sub(r"\((\d+)\)", "", transaction_row.split("\n")[1][length:])
+        cells = clean_transaction_row.split()
         if relevant_data_exists(transaction_row):  # if True, non-derivative transaction present
             transaction_code = strip_formatting(format_transaction_code(cells[1]))
-            number_of_shares = format_share_count(cells[3])
-            shares_held_following_transaction = format_share_count(cells[6])
-            share_price = format_dollar_amount(cells[5].strip())
+            number_of_shares = format_share_count(cells[2])
+            shares_held_following_transaction = format_share_count(cells[5])
+            share_price = format_dollar_amount(cells[4].strip())
             return NonDerivativeTransaction(transaction_code, number_of_shares, shares_held_following_transaction, share_price)
         else:  # if False, no non-derivative transaction present
             return None
