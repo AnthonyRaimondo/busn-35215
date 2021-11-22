@@ -1,19 +1,19 @@
 from datetime import timedelta, date
-from math import exp, tanh
+from math import tanh
 from statistics import median
 
 import pandas
 
 from analyze.load_filings import load_index_returns, load_t_bill_returns, load_open_market_transactions
-from common.constant.consume import END_DATE, BEGIN_DATE
+from common.constant.analyze import MEDIAN_SENTIMENT
+from common.constant.consume import END_DATE
 
 
-def compute_returns(start_from: date = BEGIN_DATE):
+def compute_returns(start_from: date):
     insider_transactions = load_open_market_transactions()
     index_returns, t_bill_returns = load_index_returns(), load_t_bill_returns()
     temp_list = []
     while start_from < END_DATE:
-        print(start_from)
         transactions = insider_transactions.get(start_from)
         if transactions is not None and transactions.shape[0] > 0:
             transactions.iloc[:, -3:] = transactions.iloc[:, -3:].astype('float64').abs()
@@ -55,16 +55,12 @@ def compute_individual_insider_sentiment(insider_transactions: pandas.DataFrame)
         total_portfolio_base = initial_shares + shares_transacted_through_other_means
         if total_portfolio_base > 0:
             sentiment = shares_transacted_on_open_market / total_portfolio_base
-            return sentiment  # tanh(sentiment+0.2)
+            return sentiment
         else:
             return None
     else:
         return None
 
 
-def scale_positive_sentiment(sentiment: float) -> float:
-    return (2/(1+exp(-sentiment)))-1
-
-
 if __name__ == "__main__":
-    compute_returns()
+    compute_returns(date(2003, 1, 1))

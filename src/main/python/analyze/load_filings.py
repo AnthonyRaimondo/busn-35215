@@ -41,13 +41,15 @@ def load_t_bill_returns() -> pandas.DataFrame:
     return load_csv(RESOURCES_PATH.joinpath("t-bill-rates"))
 
 
-# if __name__ == "__main__":
-#     asdf = load_open_market_transactions()
-#     index_returns = load_index_returns()
-#     print(index_returns.shape)
-#     t_bill_returns = load_t_bill_returns()
-#     print(t_bill_returns.shape)
-#     rows = 0
-#     for key, value in asdf.items():
-#         rows += value.shape[0]
-#     print(rows)
+if __name__ == "__main__":
+    asdf = load_open_market_transactions()
+    # index_returns = load_index_returns()
+    # print(index_returns.shape)
+    # t_bill_returns = load_t_bill_returns()
+    # print(t_bill_returns.shape)
+    sales, purchases = 0, 0
+    for key, value in asdf.items():
+        sales += value.loc[value["transaction_code"] == "S"].shape[0]
+        purchases += value.loc[value["transaction_code"] == "P"].shape[0]
+    print(f"sales: {sales}")
+    print(f"purchases: {purchases}")
