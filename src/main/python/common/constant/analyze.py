@@ -15,3 +15,4 @@ COLUMNS = [
     "shares_held_following_transaction",
     "share_price"
 ]
+MEDIAN_SENTIMENT = -0.1626672193085963

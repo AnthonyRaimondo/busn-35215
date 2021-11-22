@@ -3,8 +3,8 @@ from datetime import date
 API = "https://api.sec-api.io"
 ENCODING = 'utf-8'
 # BEGIN_DATE = date(1999, 6, 1)  # inclusive - per SEC api
-BEGIN_DATE = date(2009, 1, 1)  # inclusive - per SEC api
-END_DATE = date(2021, 6, 1)  # exclusive - per SEC api
+BEGIN_DATE = date(2003, 1, 1)  # inclusive - per SEC api
+END_DATE = date(2004, 1, 1)  # exclusive - per SEC api
 FORM_4_FILTER = "formType:\"4\" " \
                 "AND formType:(NOT \"N-4\") " \
                 "AND formType:(NOT \"F-4\") " \
