@@ -109,7 +109,7 @@ async def download_form_4_filings(begin: date, end: date, start_from: int = 0, e
 
 if __name__ == "__main__":
     # begin_date = date(1999, 6, 1)  # inclusive - per SEC api
-    begin_date = date(2013, 2, 27)  # inclusive - per SEC api
-    end_date = date(2015, 12, 31)  # exclusive - per SEC api
+    begin_date = date(2021, 3, 4)  # inclusive - per SEC api
+    end_date = date(2021, 6, 1)  # exclusive - per SEC api
     # end_date = date(2021, 6, 1)  # exclusive - per SEC api
-    asyncio.get_event_loop().run_until_complete(download_form_4_filings(begin_date, end_date))
+    asyncio.run(download_form_4_filings(begin_date, end_date))
