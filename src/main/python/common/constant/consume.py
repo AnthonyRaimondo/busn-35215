@@ -1,4 +1,5 @@
 API = "https://api.sec-api.io"
+ARCHIVE_API = "https://archive.sec-api.io"
 ENCODING = 'utf-8'
 FORM_4_FILTER = "formType:\"4\" " \
                 "AND formType:(NOT \"N-4\") " \
@@ -43,6 +44,7 @@ BAD_RESPONSES = [
     "Authorization header is invalid",
     "File Unavailable</title>",
     "File Not Found Error Alert (404)"
+    "Issuer Name and Ticker orTrading Symbol"
 ]
 SPECIAL_CHARS = {" ", "."}
 COMPANY_INFO_SECTION_TXT_FILE = "SUBJECT COMPANY:"

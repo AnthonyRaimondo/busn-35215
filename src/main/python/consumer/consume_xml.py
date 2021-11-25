@@ -15,10 +15,6 @@ from domain.form_4_filing.shareholder import Shareholder
 
 
 def consume_and_save_xml_form_4_filing(lxml: BeautifulSoup, filing_date: date) -> None:
-    # try:
-    #     _ = lxml.text
-    # except Exception:
-    #     return None  # TimeoutError response
     tables = lxml.findAll("table")
     for table in tables:
         if const.SHAREHOLDER_TABLE in table.text:
@@ -31,11 +27,8 @@ def consume_and_save_xml_form_4_filing(lxml: BeautifulSoup, filing_date: date) -
             break  # this table will always be the last one we're interested in
     try:
         digest_transactions(FilingTransactions(company, shareholder, non_derivative_transactions), filing_date)
-    except Exception as e:
-        if any(bad_response in lxml.text for bad_response in const.BAD_RESPONSES):
-            return None  # sometimes the xml file is unavailable
-        print(lxml)  # otherwise, might have gotten slapped on the wrist by sec api. Trigger timeout by throwing exception
-        raise e
+    except UnboundLocalError:
+        return None  # sometimes the SEC's format is incorrect or the file is unavailable
 
 
 def collect_transaction_meta_data(table: Tag) -> Tuple[Company, Shareholder]:

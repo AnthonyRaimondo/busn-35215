@@ -4,11 +4,10 @@ from urllib.request import Request, urlopen
 from datetime import date, timedelta
 
 import aiohttp as aiohttp
-from aiohttp import DummyCookieJar
 from bs4 import BeautifulSoup
 
 from common.config.app_config import Config
-from common.constant.consume import FORM_4_FILTER, API, ENCODING, SEC_PAYLOAD
+from common.constant.consume import FORM_4_FILTER, API, ENCODING, SEC_PAYLOAD, ARCHIVE_API
 from consumer.consume_txt import consume_and_save_txt_form_4_filing
 from consumer.consume_xml import consume_and_save_xml_form_4_filing
 from domain.filings_metadata.filings_metadata import FilingsMetadata
@@ -58,7 +57,7 @@ async def download_all_files(urls: list):
                     "content-encoding": "gzip",
                     "accept": "text/html,application/xhtml+xml,application/xml"}
     tasks, requests_made = [], 0
-    async with aiohttp.ClientSession(headers=auth_headers, cookie_jar=DummyCookieJar()) as session:
+    async with aiohttp.ClientSession(headers=auth_headers) as session:
         for url in urls:
             requests_made += 1
             task = asyncio.ensure_future(download_file(session, url))
@@ -94,10 +93,10 @@ async def download_form_4_filings(begin: date, end: date, start_from: int = 0, e
             # there should be some overlap of previous query end date and new query begin date, to ensure no filings are missed
             if filing.linkToFilingDetails is not None and filing.linkToFilingDetails not in existing_filing_urls:
                 if filing.ticker is not None and len(filing.ticker) > 0:
-                    if any(extension == filing.linkToFilingDetails[-4:] for extension in [".xml"]):#, ".htm"]):
-                        link_to_filing_details = filing.linkToFilingDetails
+                    if any(extension == filing.linkToFilingDetails[-4:] for extension in [".xml", ".htm"]):
+                        link_to_filing_details = ARCHIVE_API + "/" + filing.linkToFilingDetails.split("Archives/edgar/data/")[1]
                     else:
-                        link_to_filing_details = filing.linkToTxt
+                        link_to_filing_details = ARCHIVE_API + "/" + filing.linkToTxt.split("Archives/edgar/data/")[1]
                     existing_filing_urls.append(link_to_filing_details)
                     filing_urls_from_this_iteration.append(link_to_filing_details)
         responses = await download_all_files(filing_urls_from_this_iteration)
@@ -119,6 +118,6 @@ async def download_form_4_filings(begin: date, end: date, start_from: int = 0, e
 
 if __name__ == "__main__":
     # begin_date = date(2021, 6, 1)  # exclusive - per SEC api
-    begin_date = date(2003, 5, 2)  # exclusive - per SEC api
-    end_date = date(1999, 6, 1)  # inclusive - per SEC api
+    begin_date = date(2021, 11, 25)  # exclusive - per SEC api
+    end_date = date(2021, 5, 31)  # inclusive - per SEC api
     asyncio.run(download_form_4_filings(begin_date, end_date))
