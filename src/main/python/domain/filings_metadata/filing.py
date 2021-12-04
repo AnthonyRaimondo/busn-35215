@@ -9,20 +9,20 @@ from domain.filings_metadata.seriesAndClassesContractsInformation import SeriesA
 
 
 class Filing(BaseModel):
-    id: str
-    accessionNo: str
-    cik: str
-    ticker: str
-    companyName: str
-    companyNameLong: str
-    formType: str
-    description: str
-    filedAt: str
-    linkToTxt: str
-    linkToHtml: str
-    linkToXbrl: str
-    linkToFilingDetails: str
-    entities: List[Entity]
-    documentFormatFiles: Optional[List[DocumentFormatFile]]
-    dataFiles: Optional[List[DataFile]]
-    seriesAndClassesContractsInformation: Optional[List[SeriesAndClassesContractsInformation]]
+    id: str = None
+    accessionNo: str = None
+    cik: str = None
+    ticker: str = None
+    companyName: str = None
+    companyNameLong: str = None
+    formType: str = None
+    description: str = None
+    filedAt: str = None
+    linkToTxt: str = None
+    linkToHtml: str = None
+    linkToXbrl: str = None
+    linkToFilingDetails: str = None
+    entities: List[Entity] = None
+    documentFormatFiles: Optional[List[DocumentFormatFile]] = None
+    dataFiles: Optional[List[DataFile]] = None
+    seriesAndClassesContractsInformation: Optional[List[SeriesAndClassesContractsInformation]] = None
