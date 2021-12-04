@@ -17,11 +17,11 @@ def load_csv(path: Path) -> pandas.DataFrame or None:
         return None
 
 
-def load_open_market_transactions(start_from: date = BEGIN_DATE) -> dict[date, pandas.DataFrame]:
+def load_open_market_transactions(start_from: date = BEGIN_DATE, stop_at: date = END_DATE) -> dict[date, pandas.DataFrame]:
     base_path = RESOURCES_PATH.joinpath("NonDerivativeTransactions")
     futures, relevant_transactions_dict = {}, {}
     with ThreadPoolExecutor() as executor:
-        while start_from < END_DATE:
+        while start_from < stop_at:
             current_path = base_path.joinpath(str(start_from.year)).joinpath(str(start_from.month)).joinpath(str(start_from.day))
             futures[executor.submit(load_csv, current_path)] = start_from
             start_from += timedelta(days=1)
@@ -34,11 +34,15 @@ def load_open_market_transactions(start_from: date = BEGIN_DATE) -> dict[date, p
 
 
 def load_index_returns() -> pandas.DataFrame:
-    return load_csv(RESOURCES_PATH.joinpath("daily-index-returns"))
+    index_returns = load_csv(RESOURCES_PATH.joinpath("daily-index-returns"))
+    index_returns["DATE"] = pandas.to_datetime(index_returns["DATE"])
+    return index_returns
 
 
-def load_t_bill_returns() -> pandas.DataFrame:
-    return load_csv(RESOURCES_PATH.joinpath("t-bill-rates"))
+def load_t_bill_rates() -> pandas.DataFrame:
+    t_bill_returns = load_csv(RESOURCES_PATH.joinpath("t-bill-rates"))
+    t_bill_returns["DATE"] = pandas.to_datetime(t_bill_returns["DATE"], format="%m/%d/%Y")
+    return t_bill_returns
 
 
 # if __name__ == "__main__":

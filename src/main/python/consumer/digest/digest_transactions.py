@@ -4,7 +4,7 @@ from datetime import date
 from typing import List, Dict
 
 from common.constant.digest import TRANSACTION_ID, RESOURCES_PATH
-from digest.file_operations import prepare_file_structure
+from consumer.digest.file_operations import prepare_file_structure
 from domain.form_4_filing.company import Company
 from domain.form_4_filing.filing_transactions import FilingTransactions
 from domain.form_4_filing.shareholder import Shareholder

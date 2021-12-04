@@ -112,6 +112,7 @@ venv.bak/
 .idea
 DerivativeTransactions/
 NonDerivativeTransactions/
+output/
 
 # Spyder project settings
 .spyderproject

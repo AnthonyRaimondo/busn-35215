@@ -1,7 +1,7 @@
-Type of Transactor,Total Trades,Number of Purchases,Number of Sales,Average Size of Purchase,Average Size of Sale
-All,2185913,669371,1516542,"$617,009.82 ","$239,426.37 "
-Directors,636008,241286,394722,"$18,266.45 ","$744,942.21 "
-Officers,531144,98637,432507,"$10,643.93 ","$1,570.44 "
-Officer-Directors,577745,132399,445346,"$2,983.69 ","$6,799.97 "
-10% Owners,357678,155706,201972,"$2,009,179.15 ","$155,856.61 "
-Others,83338,41343,41995,"$537,971.39 ","$26,166.98 "
+Filer Type,Total Trades,Number of Purchases,Number of Sales,Average Size of Purchase,Average Size of Sale
+All,"2,185,913","669,371","1,516,542","$617,010 ","$239,426 "
+Directors,"636,008","241,286","394,722","$18,266 ","$744,942 "
+Officers,"531,144","98,637","432,507","$10,644 ","$1,570 "
+Officer-Directors,"577,745","132,399","445,346","$2,984 ","$6,800 "
+10% Owners,"357,678","155,706","201,972","$2,009,179 ","$155,857 "
+Others,"83,338","41,343","41,995","$537,971 ","$26,167 "
