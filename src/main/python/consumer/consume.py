@@ -7,7 +7,7 @@ import aiohttp as aiohttp
 from bs4 import BeautifulSoup
 
 from common.config.app_config import Config
-from common.constant.consume import FORM_4_FILTER, API, ENCODING, SEC_PAYLOAD, ARCHIVE_API
+from common.constant.consume import FORM_4_FILTER, API, ENCODING, SEC_PAYLOAD, ARCHIVE_API, BEGIN_DATE, END_DATE
 from consumer.consume_txt import consume_and_save_txt_form_4_filing
 from consumer.consume_xml import consume_and_save_xml_form_4_filing
 from domain.filings_metadata.filings_metadata import FilingsMetadata
@@ -117,7 +117,4 @@ async def download_form_4_filings(begin: date, end: date, start_from: int = 0, e
 
 
 if __name__ == "__main__":
-    # begin_date = date(2021, 6, 1)  # exclusive - per SEC api
-    begin_date = date(2021, 11, 25)  # exclusive - per SEC api
-    end_date = date(2021, 5, 31)  # inclusive - per SEC api
-    asyncio.run(download_form_4_filings(begin_date, end_date))
+    asyncio.run(download_form_4_filings(BEGIN_DATE, END_DATE))

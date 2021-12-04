@@ -5,8 +5,8 @@ from bs4 import BeautifulSoup
 from bs4.element import Tag
 
 from common.constant import consume as const
+from consumer.digest.digest_transactions import digest_transactions
 from common.formatting import format_dollar_amount, format_share_count, format_transaction_code, strip_formatting
-from digest.digest_transactions import digest_transactions
 from domain.form_4_filing.company import Company
 from domain.form_4_filing.derivative_transaction import DerivativeTransaction
 from domain.form_4_filing.filing_transactions import FilingTransactions
