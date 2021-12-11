@@ -1,8 +1,7 @@
-# busn-35215
+# _Systematic Portfolio Allocation Based on Aggregate Insider Behavior_
 
-Possible modifications to payload for retrieving filings from the SEC website:
-* Configure the size of the response from the SEC's api by changing the "size" field of SEC_PAYLOAD (consumption_constants.py)
-    * Though, the SEC api seems to return no more than 200 filings per request
-* Modify begin_date to change the date from which the SEC query begins
-* Modify end_date to change the date from which the SEC query ends
-* To change the sorting of filings, use sort[0].filedAt.order in SEC_PAYLOAD (consumption_constants.py) - "asc" or "desc"
+This code was written for a project in Behavioral and Institutional Finance (BUSN-35215) at The University of Chicago Booth School of Business
+
+The study backtests a trading strategy based on the daily trading behavior of U.S. corporate insiders in aggregate.
+
+The paper written for this study, included in this root directory as _paper.pdf_, details the data collection, methodology, and results. 
